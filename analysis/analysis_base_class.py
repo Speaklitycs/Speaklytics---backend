@@ -1,21 +1,24 @@
 from abc import ABC, abstractmethod
 
 class AnalysisBaseClass(ABC):
-    def __init__(self):
-        super().__init__(self, AnalysisBaseClass)
 
     @abstractmethod
-    def analyze(self):
+    def analyze(self) -> dict["error": str, 
+                              "gaps": list[dict["start": float, "end": float]]]:
         """
     Analyzes the data.
 
     Returns:
-        list[dict] - A list of dictionaries containing the analysis results, one for every error.
-        Dict should follow this json structure:
+        dict: A dictionary containing the error message, start timestamps, and end timestamps.
+        The structure of the dictionary is as follows:
         {
-            "error": error type,
-            "timestamp_start": start timestamp (in seconds)
-            "timestamp_end": end timestamp (in seconds),
+            "error": "An error message",
+            "gaps": [
+                {
+                    "start": 0.125,
+                    "end": 1.07
+                }
+            ]
         }
     """
         raise NotImplementedError("Analyze method not implemented")
