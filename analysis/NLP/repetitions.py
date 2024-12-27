@@ -9,15 +9,7 @@ class RepetitionDetection(AnalysisBaseClass):
 
     def analyze(self):
         return {
-            "error": "repetitions",
+            "error": self.error_name,
             "gaps": [
-                {
-                    "start": 0.125,
-                    "end": 1.07
-                },
-                {
-                    "start": 2.125,
-                    "end": 3.07
-                }
             ]
         }
