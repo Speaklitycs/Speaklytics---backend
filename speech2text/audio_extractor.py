@@ -2,7 +2,10 @@ from moviepy import VideoFileClip
 
 
 class AudioExtractor:
-    def __init__(self, video_path, audio_path):
+    """
+    Extract audio from a video file and save it as a .wav file.
+    """
+    def __init__(self, video_path: str, audio_path: str):
         self.video_path = video_path
         self.audio_path = audio_path
 
