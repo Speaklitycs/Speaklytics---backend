@@ -1,0 +1,40 @@
+@startuml classes
+set namespaceSeparator none
+class "BackendConfig" as app.backend.apps.BackendConfig {
+  default_auto_field : str
+  name : str
+}
+class "ErrorDetailView" as app.backend.views.ErrorDetailView {
+  get(request)
+}
+class "ErrorModel" as app.backend.models.ErrorModel {
+  name : CharField
+  timestamp_end : FloatField
+  timestamp_start : FloatField
+}
+class "ErrorSerializer" as app.backend.serializers.ErrorSerializer {
+}
+class "Meta" as app.backend.serializers.ErrorSerializer.Meta {
+  model
+}
+class "Migration" as app.backend.migrations.0001_initial.Migration {
+  dependencies : list
+  initial : bool
+  operations : list
+}
+class "Migration" as app.backend.migrations.0002_alter_errormodel_name_alter_errormodel_timestamp_end_and_more.Migration {
+  dependencies : list
+  operations : list
+}
+class "NewTicketView" as app.backend.views.NewTicketView {
+  post(request)
+}
+class "VideoUploadSerializer" as app.backend.serializers.VideoUploadSerializer {
+  video : FileField
+}
+class "VideoUploadView" as app.backend.views.VideoUploadView {
+  parser_classes : list
+  post(request)
+}
+app.backend.models.ErrorModel --* app.backend.serializers.ErrorSerializer.Meta : model
+@enduml
