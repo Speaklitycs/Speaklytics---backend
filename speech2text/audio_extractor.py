@@ -1,4 +1,4 @@
-from moviepy import VideoFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 
 class AudioExtractor:
