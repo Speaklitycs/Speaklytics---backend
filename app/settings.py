@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-e1p^wwd=cuitd*l+x)c6@-t-!_+76^n_*d5^m10*p)t55ol4t8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'adrf',
     'app.backend.apps.BackendConfig',
 ]
 
@@ -129,3 +130,10 @@ FILE_UPLOAD_HANDLERS = [
 ]
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800 * 2
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800 * 2
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+
