@@ -1,12 +1,12 @@
-from analysis.NLP.articles import ArticlesDetection
-from analysis.NLP.difficult_words import DifficultWordsDetection
-from analysis.NLP.false_words import FalseWordsDetection
-from analysis.NLP.jargon import JargonDetection
-from analysis.NLP.long_sentences import LongSentencesDetection
-from analysis.NLP.numbers import NumbersDetection
-from analysis.NLP.other import OtherErrorsDetection
-from analysis.NLP.repetitions import RepetitionDetection
-from analysis.NLP.topic_change import TopicChangeDetection
+from analysis.NLP.analysis_classes.articles import ArticlesDetection
+from analysis.NLP.analysis_classes.difficult_words import DifficultWordsDetection
+from analysis.NLP.analysis_classes.false_words import FalseWordsDetection
+from analysis.NLP.analysis_classes.jargon import JargonDetection
+from analysis.NLP.analysis_classes.long_sentences import LongSentencesDetection
+from analysis.NLP.analysis_classes.numbers_words import NumbersDetection
+from analysis.NLP.analysis_classes.other import OtherErrorsDetection
+from analysis.NLP.analysis_classes.repetitions import RepetitionDetection
+from analysis.NLP.analysis_classes.topic_change import TopicChangeDetection
 
 class WrongAnalysisTypeException(Exception):
     pass

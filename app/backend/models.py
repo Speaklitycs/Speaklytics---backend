@@ -16,6 +16,8 @@ class ErrorModel(models.Model):
     @classmethod
     def analyze(cls, analysis_type, transcript_path, ticket_id):
         ticket=TicketModel.objects.get(ticket_id=ticket_id)
+        #if ErrorModel.objects.filter(ticket=ticket, name=analysis_type).exists():
+         #   return None
         error = ErrorModel(ticket=ticket, name=analysis_type)
         error.save()
         analysis_class: AnalysisBaseClass = AnalysisMapper().get_analysis_class(analysis_type)

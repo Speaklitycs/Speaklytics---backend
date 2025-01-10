@@ -30,4 +30,3 @@ class Whisper:
             })
         return result
 
-        

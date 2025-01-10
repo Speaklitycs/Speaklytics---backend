@@ -6,5 +6,4 @@ file_path = "videos/video.mp4"
 with open(file_path, "rb") as video_file:
     response = requests.post(url, files={"video": video_file})
 
-print(response.status_code)
-print(response.json())
+
