@@ -2,14 +2,7 @@ from abc import ABC, abstractmethod
 import json
 from speech2text.speech2text import Speech2Text
 
-class AnalysisBaseClass(ABC):
-
-    @abstractmethod
-    def __init__(self, transcript_path: str):
-        with open(transcript_path, "r", encoding="utf-8") as transcript_file:
-            self.transcript_with_timestamps = json.load(transcript_file)
-        self.transcript_text = Speech2Text.read_transcript_from_json(transcript_path)
-        self.error = ""
+class AnalysisBaseClass(ABC):        
 
     @abstractmethod
     def analyze(self) -> dict["error": str, 
@@ -32,8 +25,8 @@ class AnalysisBaseClass(ABC):
     """
         raise NotImplementedError("Analyze method not implemented")
     
-    def add_timestamps(self, errors):
-        errors = [error.strip() for error in errors.strip().split("|") if error.strip()]
+    def add_timestamps_nlp(self, errors):
+        
         response = {
             "error": self.error,
             "gaps": []
@@ -62,7 +55,6 @@ class AnalysisBaseClass(ABC):
                 response["gaps"].append({"start": start, "end": end})
 
         
-        print(response)
         return response
         
 
