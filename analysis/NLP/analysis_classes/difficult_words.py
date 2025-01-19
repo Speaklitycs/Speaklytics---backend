@@ -1,15 +1,14 @@
-from analysis.analysis_base_class import AnalysisBaseClass
+from analysis.NLP.analysis_nlp_base_class import NlpAnalysisBaseClass
 
-class DifficultWordsDetection(AnalysisBaseClass):
+
+class DifficultWordsDetection(NlpAnalysisBaseClass):
     def __init__(self, transcript_path):
-        super().__init__(self, DifficultWordsDetection)
-        self.error_name = "difficult_words"
-        with open(transcript_path, "r", encoding="utf-8") as f:
-            self.transcript = f.read()
-
-    def analyze(self):
-        return {
-            "error": self.error_name,
-            "gaps": [
-            ]
-        }
+        super().__init__(transcript_path)
+        self.error = "difficult words"
+        self.system = self.prompt[self.error]
+    
+if __name__ == "__main__":
+    difficult_words = DifficultWordsDetection("data/transcripts/dw_example.json")
+    analysis = difficult_words.analyze()
+    print(analysis)
+    
