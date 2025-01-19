@@ -1,25 +1,14 @@
-import json
-from analysis.analysis_base_class import AnalysisBaseClass
-from analysis.NLP.gpt import analyze_speech
-from speech2text.speech2text import Speech2Text
+from analysis.NLP.analysis_nlp_base_class import NlpAnalysisBaseClass
 
-class JargonDetection(AnalysisBaseClass):
+
+class JargonDetection(NlpAnalysisBaseClass):
     def __init__(self, transcript_path):
-        with open(transcript_path, "r", encoding="utf-8") as transcript_file:
-            self.transcript_with_timestamps = json.load(transcript_file)
-            self.transcript_text = Speech2Text.read_transcript_from_json(transcript_path)
-            self.error = "jargon"
-        
-
-    def analyze(self):
-        errors = analyze_speech("", f"Find jargon words in the transcript: {self.transcript_text}")
-        errors = [error.strip() for error in errors.strip().split("|") if error.strip()]
-        print(errors)
-        response = self.add_timestamps_nlp(errors)
-        print(response)
-        return response
+        super().__init__(transcript_path)
+        self.error = "jargon"
+        self.system = self.prompt[self.error]
     
 if __name__ == "__main__":
-    jargon = JargonDetection("data/transcripts/89.json")
-    jargon.analyze()
+    jargon = JargonDetection("data/transcripts/jargon_example.json")
+    analysis = jargon.analyze()
+    print(analysis)
     
