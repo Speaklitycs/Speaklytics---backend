@@ -1,15 +1,14 @@
-from analysis.analysis_base_class import AnalysisBaseClass
+from analysis.NLP.analysis_nlp_base_class import NlpAnalysisBaseClass
 
-class TopicChangeDetection(AnalysisBaseClass):
+
+class TopicChangeDetection(NlpAnalysisBaseClass):
     def __init__(self, transcript_path):
-        super().__init__(self, TopicChangeDetection)
-        self.error_name = "topic_change"
-        with open(transcript_path, "r", encoding="utf-8") as f:
-            self.transcript = f.read()
-
-    def analyze(self):
-        return {
-            "error": self.error_name,
-            "gaps": [
-            ]
-        }
+        super().__init__(transcript_path)
+        self.error = "topic change"
+        self.system = self.prompt[self.error]
+    
+if __name__ == "__main__":
+    topic_change = TopicChangeDetection("data/transcripts/topic_change_example.json")
+    analysis = topic_change.analyze()
+    print(analysis)
+    
