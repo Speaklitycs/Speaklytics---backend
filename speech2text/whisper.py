@@ -20,19 +20,18 @@ class Whisper:
                 response_format="verbose_json",
                 timestamp_granularities=["word"]
             )
-        result = {}
-        result["words"] = []
+            text_transcription = self.client.audio.transcriptions.create(
+            model=self.model,
+            file=audio_file,
+            response_format="text"
+        )
+        result = {"words": [], "text": ""}
         for word in transcription.words:
             result["words"].append({
                 "word": word.word,
                 "start": word.start,
                 "end": word.end
             })
-        text_transcription = self.client.audio.transcriptions.create(
-            model=self.model,
-            file=audio_file,
-            response_format="plain_text"
-        )
         result["text"] = text_transcription
         return result
 
