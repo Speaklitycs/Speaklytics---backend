@@ -17,19 +17,12 @@ def analyze_speech(system, prompt):
     Returns:
         str: The AI's response to the prompt.
     """
-    system_prompt = (
-        "You are an AI specialized in analyzing the quality of speech in video recordings. Your tasks include detecting "
-        "linguistic errors, assessing fluency, analyzing emotional tone or detecting pauses and filler words. "
-        "Provide clear, actionable insights tailored for public speaking improvement, "
-        "media training, and educational or HR purposes. Return only parts of the transcript when the errors happens and nothing more."
-        "split the parts by |, but don't start or end your answer with |."
-    )
     
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": system},
                 {"role": "user", "content": prompt}
             ]
         )
