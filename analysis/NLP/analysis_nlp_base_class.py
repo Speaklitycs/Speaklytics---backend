@@ -12,7 +12,7 @@ class NlpAnalysisBaseClass(AnalysisBaseClass):
     def __init__(self, transcript_path):
         with open(transcript_path, "r", encoding="utf-8") as transcript_file:
             self.transcript_with_timestamps = json.load(transcript_file)
-            self.transcript_text = Speech2Text.read_transcript_from_json(transcript_path)
+            self.transcript_text = self.transcript_with_timestamps["text"]
         
         with open(PROMPT_PATH, "r", encoding="utf-8") as prompt_file:
             self.prompt = json.load(prompt_file)   

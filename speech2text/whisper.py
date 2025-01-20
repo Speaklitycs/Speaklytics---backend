@@ -28,5 +28,11 @@ class Whisper:
                 "start": word.start,
                 "end": word.end
             })
+        text_transcription = self.client.audio.transcriptions.create(
+            model=self.model,
+            file=audio_file,
+            response_format="plain_text"
+        )
+        result["text"] = text_transcription
         return result
 

@@ -23,13 +23,3 @@ class Speech2Text:
     def save_transcript(self, transcript):
         with open(self.transcript_path, 'w', encoding='UTF-8') as f:
             json.dump(transcript, f, ensure_ascii=False, indent=4)
-
-    @classmethod
-    def read_transcript_from_json(cls, transcript_path):
-        with open(transcript_path, 'r', encoding='UTF-8') as f:
-            data = json.load(f)
-        transcript = ""
-        for item in data["words"]:
-            transcript += item['word']
-            transcript += " "
-        return transcript
