@@ -6,6 +6,8 @@ from analysis.NLP.analysis_classes.repetitions import RepetitionsDetection
 from analysis.NLP.analysis_classes.topic_change import TopicChangeDetection
 from analysis.audio.analysis_classes.silence_detection import SilenceDetection
 from analysis.audio.analysis_classes.volume_detection import VolumeDetection
+from analysis.image.analysis_classes.background_people_detection import BackgroundPeopleDetection
+from analysis.image.analysis_classes.excessive_gestures_detection import ExcessiveGesturesDetection
 
 class WrongAnalysisTypeException(Exception):
     pass
@@ -21,7 +23,9 @@ class AnalysisMapper:
             "repetition": RepetitionsDetection,
             "long_sentences": LongSentenceDetection,
             "silence": SilenceDetection,
-            "volume": VolumeDetection
+            "volume": VolumeDetection,
+            "background_people": BackgroundPeopleDetection,
+            "excessive_gestures": ExcessiveGesturesDetection
         }
 
     def get_analysis_class(self, analysis_type):
