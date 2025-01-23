@@ -25,4 +25,4 @@ class ImageAnalysisBaseClass(AnalysisBaseClass):
         
     def __del__(self):
         if self.cap:
-            self.cap.release() 
+            self.cap.release()
