@@ -11,10 +11,20 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Add these settings
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'data')
+VIDEOS_DIR = os.path.join(DATA_DIR, 'videos')
+AUDIOS_DIR = os.path.join(DATA_DIR, 'audios')
+TRANSCRIPTS_DIR = os.path.join(DATA_DIR, 'transcripts')
+
+# Create directories if they don't exist
+for directory in [DATA_DIR, VIDEOS_DIR, AUDIOS_DIR, TRANSCRIPTS_DIR]:
+    os.makedirs(directory, exist_ok=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -40,9 +50,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'adrf',
     'app.backend.apps.BackendConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -136,4 +148,31 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     )
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 

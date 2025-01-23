@@ -4,6 +4,8 @@ from analysis.NLP.analysis_classes.long_sentences import LongSentenceDetection
 from analysis.NLP.analysis_classes.numbers_words import NumbersDetection
 from analysis.NLP.analysis_classes.repetitions import RepetitionsDetection
 from analysis.NLP.analysis_classes.topic_change import TopicChangeDetection
+from analysis.audio.analysis_classes.silence_detection import SilenceDetection
+from analysis.audio.analysis_classes.volume_detection import VolumeDetection
 
 class WrongAnalysisTypeException(Exception):
     pass
@@ -17,7 +19,9 @@ class AnalysisMapper:
             "numbers": NumbersDetection,
             "topic_change": TopicChangeDetection,
             "repetition": RepetitionsDetection,
-            "long_sentences": LongSentenceDetection
+            "long_sentences": LongSentenceDetection,
+            "silence": SilenceDetection,
+            "volume": VolumeDetection
         }
 
     def get_analysis_class(self, analysis_type):

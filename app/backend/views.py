@@ -19,6 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 import requests
 from rest_framework.decorators import api_view
 from moviepy.video.io.VideoFileClip import VideoFileClip
+from django.conf import settings
 
 
 
@@ -26,29 +27,12 @@ class NewTicketView(APIView):
     def post(self, request, *args, **kwargs):
         try:
             ticket = TicketModel.objects.create()
-        except IntegrityError as e:
-            return Response(
-                {"message": "Database integrity error while creating the ticket.", "error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except ValidationError as e:
-            return Response(
-                {"message": "Validation error occurred.", "error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except DatabaseError as e:
-            return Response(
-                {"message": "Database error occurred while creating the ticket.", "error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"ticket-id": ticket.ticket_id}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
-                {"message": "An unexpected error occurred.", "error": str(e)},
+                {"message": str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-        response = {"ticket-id": ticket.ticket_id}
-        return Response(response, status=status.HTTP_200_OK)
 
 
 
@@ -84,75 +68,35 @@ class VideoUploadView(APIView):
 
         
         try:
-            with open(f"data/videos/{ticket_id}.mp4", "wb+") as f:
-                f.write(video_file)  # Write the entire bytes object directly
-        except FileNotFoundError:
-            return Response({"error": "Failed to save the file"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            video_path = os.path.join(settings.VIDEOS_DIR, f"{ticket_id}.mp4")
+            with open(video_path, "wb+") as f:
+                f.write(video_file)
+        except Exception as e:
+            return Response({"error": f"Failed to save the file: {str(e)}"}, 
+                          status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         try:
-            speech2text.Speech2Text(f"data/videos/{ticket_id}.mp4", f"data/audios/{ticket_id}.wav", 
-                        f"data/transcripts/{ticket_id}.json").extract_transcript_and_audio()
-        except:
-            return Response({"error": "Failed to extract audio or transcript"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        return Response({"message": "File uploaded successfully"}, status=status.HTTP_200_OK)
-    
+            audio_path = os.path.join(settings.AUDIOS_DIR, f"{ticket_id}.wav")
+            transcript_path = os.path.join(settings.TRANSCRIPTS_DIR, f"{ticket_id}.json")
+            speech2text.Speech2Text(video_path, audio_path, transcript_path).extract_transcript_and_audio()
+            return Response({"status": "success"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"Failed to extract audio or transcript: {str(e)}"}, 
+                          status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def get(self, request, *args, **kwargs):
-        try:
-            ticket_id = int(request.query_params.get('ticket-id'))
-        except ValueError:
-            return Response({"error": "Invalid ticket ID provided"}, status=400)
-
-        if ticket_id not in TicketModel.objects.values_list('ticket_id', flat=True):
-            return Response({"error": "No or not existing ticket ID provided"}, status=400)
-
-
-        video_path = f"data/videos/{ticket_id}.mp4"
-        if not os.path.isfile(video_path):
-            return Response({"status": "not-uploaded"}, status=404)
-        with VideoFileClip(video_path) as clip:
-            def file_iterator(filename, chunk_size=8192):
-                with open(filename, "rb") as f:
-                    while True:
-                        data = f.read(chunk_size)
-                        if not data:
-                            break
-                        yield data
-
-            def cleanup_temp_file(_):
-                try:
-                    os.remove(output_path)
-                except OSError:
-                    pass
-
-            try:
-
-                with NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_file:
-                    output_path = tmp_file.name
-                clip.write_videofile(
-                    output_path,
-                    codec="libx264", 
-                    audio_codec="aac", 
-                    fps=24,    
-                    temp_audiofile="temp-audio.m4a",
-                    remove_temp=True,   
-                    logger=None   
-                )
-                response = StreamingHttpResponse(
-                    file_iterator(output_path),
-                    content_type="application/octet-stream"
-                )
-                response["Content-Disposition"] = (
-                    f'attachment; filename="{ticket_id}.mp4"'
-                )
-                response.close = lambda close_original=response.close: (
-                    close_original(), cleanup_temp_file(None)
-                )
-
-                return response
-            
-            except Exception as e:
-                    return Response({"error": str(e)}, status=500)
+        ticket_id = request.query_params.get('ticket-id')
+        if not ticket_id:
+            return Response({"error": "No ticket ID provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        video_path = os.path.join(settings.VIDEOS_DIR, f"{ticket_id}.mp4")
+        if not os.path.exists(video_path):
+            return Response({"error": "Video not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        with open(video_path, 'rb') as video_file:
+            response = HttpResponse(video_file.read(), content_type='video/mp4')
+            response['Content-Disposition'] = f'inline; filename="{ticket_id}.mp4"'
+            return response
     
 
 class VideoStreamView(APIView):
@@ -313,13 +257,3 @@ def proxy_to_frontend(request, path):
         )
     except requests.exceptions.RequestException as e:
         return HttpResponse(f"Error proxying to frontend: {str(e)}", status=500)
-
-
-
-
-        
-        
-        
-
-        
-
