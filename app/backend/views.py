@@ -11,6 +11,7 @@ from django.http import StreamingHttpResponse
 from app.backend.models import ErrorModel, TicketModel
 from app.backend.serializers import ErrorSerializer
 from analysis.analysis_base_class import AnalysisBaseClass
+
 from analysis.analysis_mapper import AnalysisMapper, WrongAnalysisTypeException
 from speech2text import speech2text
 from tempfile import NamedTemporaryFile
@@ -152,6 +153,7 @@ class VideoUploadView(APIView):
                 return response
             
             except Exception as e:
+                    print(e)
                     return Response({"error": str(e)}, status=500)
     
 
@@ -225,26 +227,29 @@ class TicketAnalyzeView(APIView):
     def post(self, request, *args, **kwargs):
         ticket_id = int(request.query_params.get('ticket-id'))
         analysis_type = request.query_params.get('type')
-        transcript_path = f"data/transcripts/{ticket_id}.json"
                 
         if ticket_id is None or ticket_id not in TicketModel.objects.values_list('ticket_id', flat=True):
             return Response({"error": "No or not existing ticket ID provided"}, status=status.HTTP_400_BAD_REQUEST)
         
         if analysis_type is None:
-            return Response({"error": "No analysis type provided"}, status=status.HTTP_400_BAD_REQUEST)
+            analysis_types = AnalysisMapper().get_all_analysis_types()
+            for analysis_class in analysis_types:
+                threading.Thread(target=ErrorModel.analyze, args=(analysis_class, ticket_id)).start()
+        else:
+            try:
+                analysis_class: AnalysisBaseClass = AnalysisMapper().get_analysis_class(analysis_type)
+            except WrongAnalysisTypeException:
+                return Response({"error": f"Wrong analysis type: {analysis_type}"}, status=status.HTTP_400_BAD_REQUEST)
+            threading.Thread(target=ErrorModel.analyze, args=(analysis_type, ticket_id)).start()
         
-        if not os.path.isfile(transcript_path):
-            return Response({"error": "Transcript file does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         
         if analysis_type == "transcription":
              return Response({"status": "success"}, status=status.HTTP_200_OK)
         
-        try:
-            analysis_class: AnalysisBaseClass = AnalysisMapper().get_analysis_class(analysis_type)
-        except WrongAnalysisTypeException:
-            return Response({"error": f"Wrong analysis type: {analysis_type}"}, status=status.HTTP_400_BAD_REQUEST)
+
         
-        threading.Thread(target=ErrorModel.analyze, args=(analysis_type, transcript_path, ticket_id)).start()
+        
+        
         return Response({"status": "success"}, status=status.HTTP_200_OK)
 
 class TicketDeleteView(APIView):
@@ -283,6 +288,12 @@ class ErrorStatusView(APIView):
         status_["transcription"] = transcript
 
         for err in error:
+            if err.name == "metrics":
+                status_[err.name] = {"wpm": err.wpm, "gfi": err.gfi}
+                continue
+            if err.name == "general_language_opinion":
+                status_[err.name] = {"text": err.text}
+                continue
             if not err.name in status_:
                 status_[err.name] = {"gaps": []}
             status_[err.name]["gaps"].append({"start": err.timestamp_start, "end": err.timestamp_end})

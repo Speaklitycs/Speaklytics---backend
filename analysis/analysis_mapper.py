@@ -8,6 +8,8 @@ from analysis.audio.analysis_classes.silence_detection import SilenceDetection
 from analysis.audio.analysis_classes.volume_detection import VolumeDetection
 from analysis.image.analysis_classes.background_people_detection import BackgroundPeopleDetection
 from analysis.image.analysis_classes.excessive_gestures_detection import ExcessiveGesturesDetection
+from analysis.NLP.analysis_classes.general_language_opinion import GeneralLanguageOpinion
+from analysis.NLP.analysis_classes.metrics import Metrics
 
 class WrongAnalysisTypeException(Exception):
     pass
@@ -22,6 +24,8 @@ class AnalysisMapper:
             "topic_change": TopicChangeDetection,
             "repetition": RepetitionsDetection,
             "long_sentences": LongSentenceDetection,
+            "general_language_opinion": GeneralLanguageOpinion,
+            "metrics": Metrics,
             "silence": SilenceDetection,
             "volume": VolumeDetection,
             "background_people": BackgroundPeopleDetection,
@@ -32,4 +36,6 @@ class AnalysisMapper:
         if analysis_type not in self.mapping:
             raise WrongAnalysisTypeException(f"Analysis type {analysis_type} is not supported")
         return self.mapping.get(analysis_type)
-
+    
+    def get_all_analysis_types(self):
+        return list(self.mapping.keys())
