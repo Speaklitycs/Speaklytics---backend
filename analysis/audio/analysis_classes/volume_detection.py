@@ -3,37 +3,47 @@ import librosa
 import numpy as np
 
 class VolumeDetection(AudioAnalysisBaseClass):
-    def __init__(self, audio_path, window_size=1.0, low_threshold=-35, high_threshold=-10):
+    def __init__(self, audio_path, low_threshold_offset=-20, high_threshold_offset=15):
         super().__init__(audio_path)
         self.error = "volume"
-        self.window_size = window_size
-        self.low_threshold = low_threshold
-        self.high_threshold = high_threshold
+        self.low_threshold_offset = low_threshold_offset  # dB below median
+        self.high_threshold_offset = high_threshold_offset  # dB above median
     
     def analyze(self):
         # Convert to dB
         db = librosa.amplitude_to_db(np.abs(self.y), ref=np.max)
         
-        # Calculate window size in samples
-        window_samples = int(self.window_size * self.sr)
+        # Calculate median volume level
+        median_volume = np.median(db)
         
-        # Analyze volume in windows
+        # Set thresholds relative to median
+        self.low_threshold = median_volume + self.low_threshold_offset
+        self.high_threshold = median_volume + self.high_threshold_offset
+        
+        # Find volume issues
         volume_issues = []
-        for i in range(0, len(db), window_samples):
-            window = db[i:i+window_samples]
-            avg_volume = np.mean(window)
+        start = None
+        prev_is_issue = False
+        
+        for i in range(len(db)):
+            current_time = i / self.sr
+            is_issue = db[i] < self.low_threshold or db[i] > self.high_threshold
             
-            start_time = i / self.sr
-            end_time = min((i + window_samples) / self.sr, len(self.y) / self.sr)
-            
-            if avg_volume < self.low_threshold:
-                volume_issues.append((start_time, end_time))
-            elif avg_volume > self.high_threshold:
-                volume_issues.append((start_time, end_time))
+            if is_issue and not prev_is_issue:
+                start = current_time
+            elif not is_issue and prev_is_issue:
+                volume_issues.append((start, current_time))
+                start = None
+                
+            prev_is_issue = is_issue
+        
+        # Handle case where file ends during an issue
+        if start is not None:
+            volume_issues.append((start, len(self.y) / self.sr))
                 
         return self.add_timestamps(volume_issues)
 
 if __name__ == "__main__":
     volume = VolumeDetection("data/audios/example.wav")
     analysis = volume.analyze()
-    print(analysis) 
+    print(analysis)
