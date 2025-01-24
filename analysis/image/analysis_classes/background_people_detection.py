@@ -51,7 +51,11 @@ class BackgroundPeopleDetection(ImageAnalysisBaseClass):
                 if duration >= self.min_duration:
                     background_periods.append((current_start, frame_count/self.fps))
                     
-        return self.add_timestamps(background_periods)
+        #return self.add_timestamps(background_periods)
+        return {"gaps": [{
+            "start": None,
+            "end": None
+        }]}
 
 if __name__ == "__main__":
     detector = BackgroundPeopleDetection("data/videos/example.mp4")

@@ -231,6 +231,9 @@ class TicketAnalyzeView(APIView):
         if ticket_id is None or ticket_id not in TicketModel.objects.values_list('ticket_id', flat=True):
             return Response({"error": "No or not existing ticket ID provided"}, status=status.HTTP_400_BAD_REQUEST)
         
+        if analysis_type == "transcription":
+             return Response({"status": "success"}, status=status.HTTP_200_OK)
+        
         if analysis_type is None:
             analysis_types = AnalysisMapper().get_all_analysis_types()
             for analysis_class in analysis_types:
@@ -243,8 +246,7 @@ class TicketAnalyzeView(APIView):
             threading.Thread(target=ErrorModel.analyze, args=(analysis_type, ticket_id)).start()
         
         
-        if analysis_type == "transcription":
-             return Response({"status": "success"}, status=status.HTTP_200_OK)
+        
         
 
         

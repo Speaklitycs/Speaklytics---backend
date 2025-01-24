@@ -25,36 +25,62 @@ class ErrorModel(models.Model):
 
     @classmethod
     def analyze(cls, analysis_type, ticket_id):
-        ticket=TicketModel.objects.get(ticket_id=ticket_id)
-        error = ErrorModel(ticket=ticket, name=analysis_type)
-        error.save()
+        ticket = TicketModel.objects.get(ticket_id=ticket_id)
         analysis_class: AnalysisBaseClass = AnalysisMapper().get_analysis_class(analysis_type)
 
         path = cls.path_chooser(analysis_class, ticket_id)
         result = analysis_class(path).analyze()
-        if analysis_type == "metrics":
-            error = ErrorModel(ticket=ticket, name=analysis_type, is_finished=True, wpm=result["wpm"], gfi=result["gfi"])
-            error.save()
-            return
-        if analysis_type == 'general_language_opinion':
-            error = ErrorModel(ticket=ticket, name=analysis_type, is_finished=True, text=result["text"])
-            error.save()
-            return 
 
-        print(analysis_type)
-        if result["gaps"] == []:
-            error.is_finished = True
-            error.save()
+        def error_exists(ticket, analysis_type, start, end):
+            return ErrorModel.objects.filter(
+                ticket=ticket, 
+                name=analysis_type, 
+                timestamp_start=start, 
+                timestamp_end=end
+            ).exists()
+
+        if analysis_type == "metrics":
+            if not error_exists(ticket, analysis_type, None, None):
+                error = ErrorModel(
+                    ticket=ticket, 
+                    name=analysis_type, 
+                    is_finished=True, 
+                    wpm=result["wpm"], 
+                    gfi=result["gfi"]
+                )
+                error.save()
             return
-        error.timestamp_start = result["gaps"][0]["start"]
-        error.timestamp_end = result["gaps"][0]["end"]
-        error.is_finished = True
-        error.save()
-        if len(result["gaps"]) > 1:
-            for gap in result["gaps"]:
-                error = ErrorModel(ticket=ticket, name=analysis_type, 
-                                   is_finished=True, timestamp_start=gap["start"], 
-                                   timestamp_end=gap["end"])
+
+        if analysis_type == "general_language_opinion":
+            if not error_exists(ticket, analysis_type, None, None):
+                error = ErrorModel(
+                    ticket=ticket, 
+                    name=analysis_type, 
+                    is_finished=True, 
+                    text=result["text"]
+                )
+                error.save()
+            return
+
+        if result["gaps"] == []:
+            if not error_exists(ticket, analysis_type, None, None):
+                error = ErrorModel(
+                    ticket=ticket, 
+                    name=analysis_type, 
+                    is_finished=True
+                )
+                error.save()
+            return
+
+        for gap in result["gaps"]:
+            if not error_exists(ticket, analysis_type, gap["start"], gap["end"]):
+                error = ErrorModel(
+                    ticket=ticket, 
+                    name=analysis_type, 
+                    is_finished=True, 
+                    timestamp_start=gap["start"], 
+                    timestamp_end=gap["end"]
+                )
                 error.save()
 
     @classmethod
