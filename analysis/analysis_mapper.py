@@ -32,3 +32,6 @@ class AnalysisMapper:
         if analysis_type not in self.mapping:
             raise WrongAnalysisTypeException(f"Analysis type {analysis_type} is not supported")
         return self.mapping.get(analysis_type)
+    
+    def get_all_analysis_types(self):
+        return list(self.mapping.keys())

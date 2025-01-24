@@ -1,8 +1,12 @@
 from django.db import models
 from analysis.analysis_base_class import AnalysisBaseClass
 from analysis.analysis_mapper import AnalysisMapper
+from analysis.audio.analysis_audio_base_class import AudioAnalysisBaseClass
+from analysis.image.analysis_image_base_class import ImageAnalysisBaseClass
+from analysis.NLP.analysis_nlp_base_class import NlpAnalysisBaseClass
 import os
 import time
+
 
 class TicketModel(models.Model):
     ticket_id = models.AutoField(primary_key=True)
@@ -16,12 +20,15 @@ class ErrorModel(models.Model):
     is_finished = models.BooleanField(default=False)
 
     @classmethod
-    def analyze(cls, analysis_type, transcript_path, ticket_id):
+    def analyze(cls, analysis_type, ticket_id):
         ticket=TicketModel.objects.get(ticket_id=ticket_id)
         error = ErrorModel(ticket=ticket, name=analysis_type)
         error.save()
         analysis_class: AnalysisBaseClass = AnalysisMapper().get_analysis_class(analysis_type)
-        result = analysis_class(transcript_path).analyze()
+
+        path = cls.path_chooser(analysis_class, ticket_id)
+
+        result = analysis_class(path).analyze()
         if result["gaps"] == []:
             error.is_finished = True
             error.save()
@@ -36,6 +43,17 @@ class ErrorModel(models.Model):
                                    is_finished=True, timestamp_start=gap["start"], 
                                    timestamp_end=gap["end"])
                 error.save()
+
+    @classmethod
+    def path_chooser(cls, analysis_class, ticket_id):
+        if isinstance(analysis_class, AudioAnalysisBaseClass):
+            return f"data/audios/{ticket_id}.wav"
+        elif isinstance(analysis_class, ImageAnalysisBaseClass):
+            return f"data/videos/{ticket_id}.mp4"
+        elif isinstance(analysis_class, NlpAnalysisBaseClass):
+            return f"data/transcripts/{ticket_id}.json"
+        else:
+            raise Exception("Analysis type not supported")
 
     
     
