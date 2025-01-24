@@ -37,5 +37,3 @@ class ErrorModel(models.Model):
                                    timestamp_end=gap["end"])
                 error.save()
 
-    
-    
