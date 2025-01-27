@@ -85,11 +85,18 @@ class VideoUploadView(APIView):
 
         
         try:
+            os.makedirs("data/videos", exist_ok=True)
             with open(f"data/videos/{ticket_id}.mp4", "wb+") as f:
                 f.write(video_file)  # Write the entire bytes object directly
+            # Run ffmpeg to compress the video
+            cmd = f'ffmpeg -i data/videos/{ticket_id}.mp4 -vf "scale=-1:360" -b:v 100k -b:a 128k data/videos/{ticket_id}.compressed.mp4'
+            os.system(cmd)
+            os.rename(f"data/videos/{ticket_id}.compressed.mp4", f"data/videos/{ticket_id}.mp4")
         except FileNotFoundError:
             return Response({"error": "Failed to save the file"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+        os.makedirs("data/audios", exist_ok=True)
+        os.makedirs("data/transcripts", exist_ok=True)
         try:
             speech2text.Speech2Text(f"data/videos/{ticket_id}.mp4", f"data/audios/{ticket_id}.wav", 
                         f"data/transcripts/{ticket_id}.json").extract_transcript_and_audio()

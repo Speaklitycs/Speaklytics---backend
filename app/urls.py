@@ -7,5 +7,5 @@ urlpatterns = [
     path('api/ticket/stream', VideoStreamView.as_view(), name='ticket-stream'),
     path('api/ticket/analyze', TicketAnalyzeView.as_view(), name='ticket-analyze'),
     path('api/ticket/status', ErrorStatusView.as_view(), name='ticket-status'),
-    re_path(r'^(?P<path>.+)$', proxy_to_frontend),
+    re_path(r'^(?P<path>.*)$', proxy_to_frontend),
 ]

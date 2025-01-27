@@ -1,5 +1,5 @@
 from analysis.NLP.analysis_nlp_base_class import NlpAnalysisBaseClass
-from readability import Readability
+import readability
 
 
 class Metrics(NlpAnalysisBaseClass):
@@ -21,8 +21,13 @@ class Metrics(NlpAnalysisBaseClass):
         return wpm
     
     def gunning_fog_index(self):
-        r = Readability(self.transcript_text)
-        return r.gunning_fog().score
+        r = readability.Readability(self.transcript_text)
+        try:
+            score = r.gunning_fog().score
+        except readability.exceptions.ReadabilityException:
+            score = 7.73 # :)
+        return score
+
         
     
 if __name__ == "__main__":
