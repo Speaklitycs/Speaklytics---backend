@@ -313,7 +313,8 @@ class ErrorStatusView(APIView):
 
 @api_view(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"])
 def proxy_to_frontend(request, path):
-    frontend_url = f"http://localhost:3000/{path}"
+    host = os.getenv("FRONTEND_HOST", "localhost")
+    frontend_url = f"http://{host}:3000/{path}"
     headers = {key: value for key, value in request.headers.items()}
     headers["Host"] = "localhost:3000"  # Explicitly set Host header
 

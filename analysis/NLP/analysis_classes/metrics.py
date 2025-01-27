@@ -21,13 +21,20 @@ class Metrics(NlpAnalysisBaseClass):
         return wpm
     
     def gunning_fog_index(self):
-        r = readability.Readability(self.transcript_text)
+        while True:
+            try:
+                r = readability.Readability(self.transcript_text)
+                break
+            except LookupError:
+                import nltk
+                nltk.download("punkt_tab")
+
         try:
             score = r.gunning_fog().score
         except readability.exceptions.ReadabilityException:
             score = 7.73 # :)
-        return score
 
+        return score
         
     
 if __name__ == "__main__":

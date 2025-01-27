@@ -10,9 +10,12 @@ class Whisper:
         self.audio_path = audio_path
         self.model = model
         self.api_key = api_key
-        self.client = OpenAI(api_key=self.api_key)
+        self.client = None
 
     def transcribe(self):
+        if self.client is None:
+            self.client = OpenAI(api_key=self.api_key)
+
         with open(self.audio_path, "rb") as audio_file:
             transcription = self.client.audio.transcriptions.create(
                 model=self.model,
