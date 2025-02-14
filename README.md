@@ -1,6 +1,6 @@
 # Speaklytics Backend
 
-Welcome to the backend repository of Speaklytics, a powerful analytics platform designed to provide insightful data about your own speeches.
+Welcome to the backend repository of Speaklytics, a powerful analytics platform designed to provide insightful data about your own speeches. You can find app frontend at https://github.com/Speaklitycs/Speaklytics---frontend.
 
 ## Installation
 
