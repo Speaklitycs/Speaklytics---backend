@@ -40,6 +40,7 @@ python manage.py runserver localhost:8080
 ```
 
 The application will be accessible at `http://localhost:8080/`.
+If you want to access full functionality, remember to run the frontend as well!
 
 ## Contributing
 
